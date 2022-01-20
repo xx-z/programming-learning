@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAXKEY 20                                //最大キー入力回数
-#define MAXMAP 20                             //最大マップサイズ
+#define MAXKEY 5                                      //最大キー入力回数
+#define MAXMAP 20                                   //最大マップサイズ
 
-int KeyList[MAXKEY] = { 0 };                  //キー入力リスト
-int GetKeyCount = 0;                             //キー入力回数
+int KeyList[MAXKEY] = { 0 };                        //キー入力リスト
+int GetKeyCount = 0;                                    //キー入力回数
 
-char MapList[MAXMAP][MAXMAP];
-int MapSizeX, MapSizeY = 0;
+char MapList[MAXMAP][MAXMAP];              //マップの行列リスト
+int MapSizeX, MapSizeY = 0;                         //マップのXYの最大サイズ
 
-int PlayerPosX, PlayerPosY = 0;
+int PlayerPosX, PlayerPosY = 0;                     //現在のプレーヤーの座標
 
 //マップの読み込み
 void MapLoad() {
@@ -18,14 +18,14 @@ void MapLoad() {
     FILE* fp;
     char c;
     int X = 0;
-    int Y = 0;
+    int Y = 0;                                                   
 
     fopen_s(&fp, file, "r");
     if (fp == NULL) {
         printf("ファイルエラー\n%sのオープンに失敗しました。\n", file);
         exit(1);
     }
-    //	EOFまでファイルから文字を1文字ずつ読み込む
+    //EOFまでファイルから文字を1文字ずつ読み込む
     while ((c = fgetc(fp)) != EOF) {
         if ('\n' == c) {
             if (MapSizeX < X) {
@@ -34,8 +34,7 @@ void MapLoad() {
             Y++; X = 0;
         }
         else {
-            MapList[X][Y] = c;
-            X++; 
+            MapList[X][Y] = c; X++;
         }
     }
     MapSizeY = Y + 1;
@@ -86,15 +85,17 @@ void KeyGet() {
                 break;
             case 0x0d: 
                 printf("\n"); 
+                //Count = GetKeyCount;
                 GetKeyCount = MAXKEY;
                 break;
         }
     }
+    printf("%d\n", GetKeyCount);
 }
 
 void Execution() {
     //printf("%d%d", PlayerPosX, PlayerPosY);
-    for (int i = 0; i < MAXKEY; i++) {
+    for (int i = 0; i < GetKeyCount; i++) {
         while (MapList[PlayerPosX][PlayerPosY] != '3') {
             switch (KeyList[i]) {
                 case 1: PlayerPosY--; break;
