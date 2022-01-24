@@ -139,10 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.c" />
+    <ClCompile Include="algorithm.c" />
+    <ClCompile Include="start.c" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="map_1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ColorData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
