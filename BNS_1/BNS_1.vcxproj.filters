@@ -32,13 +32,13 @@
     <Text Include="map_0.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
-    <Text Include="..\Debug\map_1.txt">
+    <Text Include="map_1.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
-    <Text Include="..\Debug\map_2.txt">
+    <Text Include="map_2.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
-    <Text Include="..\Debug\map_3.txt">
+    <Text Include="map_3.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
   </ItemGroup>
