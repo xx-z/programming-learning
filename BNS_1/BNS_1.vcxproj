@@ -140,13 +140,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="algorithm.c" />
+    <ClCompile Include="select.c" />
+    <ClCompile Include="main.c" />
     <ClCompile Include="start.c" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="map_1.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ColorData.h" />
+    <Text Include="..\Debug\map_1.txt" />
+    <Text Include="..\Debug\map_2.txt" />
+    <Text Include="..\Debug\map_3.txt" />
+    <Text Include="map_0.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

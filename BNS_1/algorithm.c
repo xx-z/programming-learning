@@ -1,34 +1,38 @@
+/*****************************************************************************************************
+*
+*　アルゴリズムゲーム
+*
+*****************************************************************************************************/
+
 #include <stdio.h>
-#include <conio.h>
 #include <Windows.h>
 
-#include "ColorData.h"
+#define  T_WHITE 0x0f
+#define  T_RED 0x0c
 
-//最大キー入力回数
-#define MAXKEY 30
-//最大マップサイズ
-#define MAXMAP 20
+#define MAXKEY 30                                       //最大キー入力回数
+#define MAXMAP 20                                      //最大マップサイズ
 
-//キー入力リスト
-int KeyList[MAXKEY] = { 0 };
-//キー入力回数
-int GetKeyCount = 0;
+int KeyList[MAXKEY] = { 0 };                          //キー入力配列
+int GetKeyCount = 0;                                      //キー入力回数
 
-//マップの行列リスト
-char MapList[MAXMAP][MAXMAP];
-//マップのXYの最大サイズ
-int MapSizeX = 0, MapSizeY = 0;
+char MapList[MAXMAP][MAXMAP];               //マップの行列リスト
+int MapSizeX = 0, MapSizeY = 0;                   //マップのXYの最大サイズ
 
-//現在のプレーヤーの座標
-int PlayerPosX = 0, PlayerPosY = 0;
+int PlayerPosX = 0, PlayerPosY = 0;              //現在のプレーヤーの座標
 
-//クリアカウント
-int ClearCount = 0;
+int ClearCount = 0;                                         //クリアカウント
 
 
-//マップの読み込み
-void MapLoad() {
-    const char* file = "map_1.txt";
+/*****************************************************************************************************
+* 関数名 | MapLoad
+* 概要　 | マップの読み込み
+* 引数　 | MapFile : マップファイルの名前
+* 戻り値 | なし
+* 詳細　 | マップファイルのマップを読み込み、MapList（マップ行列）に代入、マップの最大サイズ判定
+*****************************************************************************************************/
+void MapLoad(MapFile) {
+    const char* file = MapFile;
     FILE* fp;
     char c;
     int X = 0, Y = 0;
@@ -40,10 +44,9 @@ void MapLoad() {
     }
     //EOFまでファイルから文字を1文字ずつ読み込む
     while ((c = fgetc(fp)) != EOF) {
+        //二次元配列のMapListに代入
         if ('\n' == c) {
-            if (MapSizeX < X) {
-                MapSizeX = X;
-            }
+            if (MapSizeX < X) MapSizeX = X;
             Y++; X = 0;
         }
         else {
@@ -55,11 +58,19 @@ void MapLoad() {
     fclose(fp);
 }
 
-//マップの表示
+
+/*****************************************************************************************************
+* 関数名 | MapDisplay
+* 概要　 | マップの表示
+* 引数　 | なし
+* 戻り値 | なし
+* 詳細　 | MapList（マップ行列）の表示
+* 　　　 | 0 : 通っていない場所　1: 通った場所　2 : プレーヤー　3 : 壁
+*****************************************************************************************************/
 void MapDisplay() {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     printf("\n");
-    //0:off   1:on   2:start   3:wall
+    //マップのサイズ分表示
     for (int i = 0; i < MapSizeY; i++) {
         for (int j = 0; j < MapSizeX; j++) {
             if ('0' == MapList[j][i]) {
@@ -67,7 +78,7 @@ void MapDisplay() {
                 printf("□");
             }
             else if ('1' == MapList[j][i]) {
-                SetConsoleTextAttribute(hStdoutHandle, T_DARK_RED);
+                SetConsoleTextAttribute(hStdoutHandle, T_RED);
                 printf("■");
             }
             else if ('2' == MapList[j][i]) {
@@ -87,11 +98,19 @@ void MapDisplay() {
     printf("\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n\n");
 }
 
-//キー入力検知
-void KeyGet() {
-    int Key = 0;
-    int Count = 0;
 
+/*****************************************************************************************************
+* 関数名 | KeyGet
+* 概要　 | 入力キー
+* 引数　 | なし
+* 戻り値 | なし
+* 詳細　 | 入力キーをKeyListに代入
+*****************************************************************************************************/
+void KeyGet() {
+    int Key = 0;                                         //キーの種類
+    int Count = 0;                                      //入力回数
+
+    //入力したキーをKeyListに代入
     while (GetKeyCount != MAXKEY) {
         switch (getch()) {
         case 0xe0:
@@ -110,18 +129,19 @@ void KeyGet() {
             break;
         }
     }
+    //入力回数を代入
     GetKeyCount = Count;
     printf("\n");
 }
 
-void setCursorPos(int x, int y) {
-    HANDLE hCons = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD pos;
-    pos.X = x;
-    pos.Y = y;
-    SetConsoleCursorPosition(hCons, pos);
-}
 
+/*****************************************************************************************************
+* 関数名 | KeyDisplay
+* 概要　 | 入力キーの表示、強調表示
+* 引数　 | KeyNumber（キー入力配列の選択された値）
+* 戻り値 | なし
+* 詳細　 | KeyList（入力キー）の表示、実行中の矢印キーの強調表示
+*****************************************************************************************************/
 void KeyDisplay(KeyNumber) {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int i = 0; i < GetKeyCount; i++) {
@@ -141,53 +161,84 @@ void KeyDisplay(KeyNumber) {
     SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
 }
 
-void ExecutionDisplay() {
-    setCursorPos(0, 0);
-    MapDisplay();
-}
 
+/*****************************************************************************************************
+* 関数名 | Execution
+* 概要　 | 入力キーを実行
+* 引数　 | なし
+* 戻り値 | なし
+* 詳細　 | キー入力に応じてプレイヤーを移動させて表示させる
+*****************************************************************************************************/
 void Execution() {
-    //printf("%d%d", PlayerPosX, PlayerPosY);
     for (int i = 0; i < GetKeyCount; i++) {
         while (MapList[PlayerPosX][PlayerPosY] != '3') {
+            //入力キーに合わせて１つ移動
             switch (KeyList[i]) {
             case 1: PlayerPosY--; break;
             case 2: PlayerPosX++; break;
             case 3: PlayerPosY++; break;
             case 4: PlayerPosX--; break;
             }
+            //壁に当たっていないとき
             if (MapList[PlayerPosX][PlayerPosY] != '3') {
                 if (MapList[PlayerPosX][PlayerPosY] == '0') ClearCount--;
                 MapList[PlayerPosX][PlayerPosY] = '2';
-                ExecutionDisplay();
-                KeyDisplay(i);
+                setCursorPos(0, 0);
+                MapDisplay();
             }
+            //壁に当たった時
             else {
                 setCursorPos(0, MapSizeY + 4);
-                KeyDisplay(i);
             }
-            Sleep(1000);
+            KeyDisplay(i);
+            Sleep(700);
         }
-        if (MapList[PlayerPosX][PlayerPosY] == '3') {
-            switch (KeyList[i]) {
-            case 1: PlayerPosY++; break;
-            case 2: PlayerPosX--; break;
-            case 3: PlayerPosY--; break;
-            case 4: PlayerPosX++; break;
-            }
+        //壁にぶつかっているので戻る
+        switch (KeyList[i]) {
+        case 1: PlayerPosY++; break;
+        case 2: PlayerPosX--; break;
+        case 3: PlayerPosY--; break;
+        case 4: PlayerPosX++; break;
         }
     }
 }
 
-void Clear() {
+
+/*****************************************************************************************************
+* 関数名 | Judgement
+* 概要　 | クリア判定
+* 引数　 | なし
+* 戻り値 | なし
+* 詳細　 | ClearCountが0の時にクリア
+*****************************************************************************************************/
+void Judgement() {
     if (ClearCount == 0) printf("\n\nGame Clear!");
     else printf("\n\nFailure");
 }
 
-void main() {
-    MapLoad();
+
+/*****************************************************************************************************
+* 関数名 | AlgorithmGame
+* 概要　 | アルゴリズムゲームのmain関数
+* 引数　 | AlgoSlcNum（ステージの番号）
+* 戻り値 | なし
+* 詳細　 | アルゴリズムゲームの全実行内容
+*****************************************************************************************************/
+void AlgorithmGame(AlgoSlcNum) {
+    //ステージ選択に合わせたマップの読み込み
+    char MapFile[10];
+    snprintf(MapFile, 10, "map_%d.txt", AlgoSlcNum);
+    MapLoad(MapFile);
+
+    //マップ表示
     MapDisplay();
+
+    //キーを入力
     KeyGet();
+
+    //実行
     Execution();
-    Clear();
+
+    //結果判定
+    Judgement();
 }
