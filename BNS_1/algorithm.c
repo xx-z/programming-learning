@@ -6,51 +6,61 @@
 
 #include <stdio.h>
 #include <Windows.h>
+#include "algorithm.h"
 
-#define  T_WHITE 0x0f
-#define  T_RED 0x0c
+//キー入力配列
+int KeyList[MAXKEY] = { 0 };
+//キー入力回数
+int GetKeyCount = 0;
 
-#define MAXKEY 30                                       //最大キー入力回数
-#define MAXMAP 20                                      //最大マップサイズ
+//マップの行列リスト
+char MapList[MAXMAP][MAXMAP];
+//マップのXYの最大サイズ
+int MapSizeX = 0, MapSizeY = 0;
 
-int KeyList[MAXKEY] = { 0 };                          //キー入力配列
-int GetKeyCount = 0;                                      //キー入力回数
+//現在のプレーヤーの座標
+int PlayerPosX = 0, PlayerPosY = 0;
 
-char MapList[MAXMAP][MAXMAP];               //マップの行列リスト
-int MapSizeX = 0, MapSizeY = 0;                   //マップのXYの最大サイズ
-
-int PlayerPosX = 0, PlayerPosY = 0;              //現在のプレーヤーの座標
-
-int ClearCount = 0;                                         //クリアカウント
+//ジャッチカウント
+int JudgeCount = 0;
 
 
-/*****************************************************************************************************
-* 関数名 | MapLoad
-* 概要　 | マップの読み込み
-* 引数　 | MapFile : マップファイルの名前
-* 戻り値 | なし
-* 詳細　 | マップファイルのマップを読み込み、MapList（マップ行列）に代入、マップの最大サイズ判定
-*****************************************************************************************************/
-void MapLoad(MapFile) {
+/// <summary>
+/// 関数名 | AlgoMapLoad
+/// 詳細　 | MapFile（マップファイル）のマップを読み込み
+/// 　　　 | MapList（マップ行列）に代入
+/// 　　　 | マップの最大サイズ計測（MapSizeX, Y）
+/// </summary>
+/// <param name="MapFile">マップファイルの名前</param>
+void AlgoMapLoad(char MapFile[25]) {
+    printf("%s", MapFile);
     const char* file = MapFile;
     FILE* fp;
     char c;
     int X = 0, Y = 0;
 
+    //データの初期化
+    JudgeCount = 0;
+    for (int i = 0; i < MAXMAP; i++) {
+        for (int j = 0; j < MAXMAP; j++) {
+            MapList[i][j] = '4';
+        }
+    }
+
     fopen_s(&fp, file, "r");
     if (fp == NULL) {
-        printf("ファイルエラー\n%sのオープンに失敗しました。\n", file);
+        printf("\nファイルエラー\n%sのオープンに失敗しました。\n", file);
         exit(1);
     }
     //EOFまでファイルから文字を1文字ずつ読み込む
     while ((c = fgetc(fp)) != EOF) {
-        //二次元配列のMapListに代入
+        //読み込んだデータを二次元配列のMapListに代入
         if ('\n' == c) {
             if (MapSizeX < X) MapSizeX = X;
             Y++; X = 0;
         }
         else {
-            if ('0' == c) ClearCount++;
+            if ('0' == c) JudgeCount++;     //クリア判定で使う0の個数を数える
             MapList[X][Y] = c; X++;
         }
     }
@@ -59,17 +69,14 @@ void MapLoad(MapFile) {
 }
 
 
-/*****************************************************************************************************
-* 関数名 | MapDisplay
-* 概要　 | マップの表示
-* 引数　 | なし
-* 戻り値 | なし
-* 詳細　 | MapList（マップ行列）の表示
-* 　　　 | 0 : 通っていない場所　1: 通った場所　2 : プレーヤー　3 : 壁
-*****************************************************************************************************/
-void MapDisplay() {
+/// <summary>
+/// 関数名 | AlgoMapDisplay
+/// 詳細　 | MapList（マップ行列）の表示
+/// 　　　 | 0 : 通っていない場所　1: 通った場所　2: プレーヤー　3: 壁
+/// </summary>
+void AlgoMapDisplay() {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    printf("\n");
+    printf("Algorithm Game\n\n");
     //マップのサイズ分表示
     for (int i = 0; i < MapSizeY; i++) {
         for (int j = 0; j < MapSizeX; j++) {
@@ -87,7 +94,7 @@ void MapDisplay() {
                 SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY);
                 printf("　");
             }
-            else {
+            else if ('3' == MapList[j][i]) {
                 SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
                 printf("　");
             }
@@ -95,24 +102,26 @@ void MapDisplay() {
         SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
         printf("\n");
     }
-    printf("\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n\n");
+    printf("\n□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n\n");
 }
 
 
-/*****************************************************************************************************
-* 関数名 | KeyGet
-* 概要　 | 入力キー
-* 引数　 | なし
-* 戻り値 | なし
-* 詳細　 | 入力キーをKeyListに代入
-*****************************************************************************************************/
-void KeyGet() {
+/// <summary>
+/// 関数名 | AlgoKeyGet
+/// 詳細　 | 入力キーをKeyListに代入
+/// 　　　 | 矢印キー : 代入　バックスペース : 取り消し　エンター : 終了
+/// </summary>
+void AlgoKeyGet() {
     int Key = 0;                                         //キーの種類
     int Count = 0;                                      //入力回数
+    GetKeyCount = 0;
+    for (int i = 0; i < MAXKEY; i++) KeyList[i] = 0;
 
     //入力したキーをKeyListに代入
     while (GetKeyCount != MAXKEY) {
         switch (getch()) {
+
+        //矢印キー
         case 0xe0:
             switch (getch()) {
             case 0x48: Key = 1; printf("↑"); break;
@@ -123,6 +132,19 @@ void KeyGet() {
             KeyList[GetKeyCount] = Key;
             GetKeyCount++; Count++;
             break;
+
+        //バックスペース
+        case '\b':
+            if (GetKeyCount != 0) {
+                GetKeyCount--; Count--;
+                KeyList[GetKeyCount] = 0;
+                setCursorPos(Count * 2, MapSizeY + 4);
+                printf("　");
+                setCursorPos(Count * 2, MapSizeY + 4);
+            }
+            break;
+
+        //エンター
         case 0x0d:
             Count = GetKeyCount;
             GetKeyCount = MAXKEY;
@@ -135,14 +157,13 @@ void KeyGet() {
 }
 
 
-/*****************************************************************************************************
-* 関数名 | KeyDisplay
-* 概要　 | 入力キーの表示、強調表示
-* 引数　 | KeyNumber（キー入力配列の選択された値）
-* 戻り値 | なし
-* 詳細　 | KeyList（入力キー）の表示、実行中の矢印キーの強調表示
-*****************************************************************************************************/
-void KeyDisplay(KeyNumber) {
+/// <summary>
+/// 関数名 | AlgoKeyDisplay
+/// 詳細　 | KeyList（入力キー）の表示
+/// 　　　 | 実行中の矢印キーの強調表示
+/// </summary>
+/// <param name="KeyNumber">キー入力配列の選択された値</param>
+void AlgoKeyDisplay(KeyNumber) {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int i = 0; i < GetKeyCount; i++) {
         if (KeyNumber == i) {
@@ -162,15 +183,13 @@ void KeyDisplay(KeyNumber) {
 }
 
 
-/*****************************************************************************************************
-* 関数名 | Execution
-* 概要　 | 入力キーを実行
-* 引数　 | なし
-* 戻り値 | なし
-* 詳細　 | キー入力に応じてプレイヤーを移動させて表示させる
-*****************************************************************************************************/
-void Execution() {
+/// <summary>
+/// 関数名 | AlgoExecution
+/// 詳細　 | キー入力に応じてプレイヤーを移動させて表示させる
+/// </summary>
+void AlgoExecution() {
     for (int i = 0; i < GetKeyCount; i++) {
+        //壁にぶつかっていない時、入力がない時
         while (MapList[PlayerPosX][PlayerPosY] != '3') {
             //入力キーに合わせて１つ移動
             switch (KeyList[i]) {
@@ -181,17 +200,17 @@ void Execution() {
             }
             //壁に当たっていないとき
             if (MapList[PlayerPosX][PlayerPosY] != '3') {
-                if (MapList[PlayerPosX][PlayerPosY] == '0') ClearCount--;
+                if (MapList[PlayerPosX][PlayerPosY] == '0') JudgeCount--;
                 MapList[PlayerPosX][PlayerPosY] = '2';
                 setCursorPos(0, 0);
-                MapDisplay();
+                AlgoMapDisplay();
             }
             //壁に当たった時
             else {
-                setCursorPos(0, MapSizeY + 4);
+                setCursorPos(0, MapSizeY + INTERVAL);
             }
-            KeyDisplay(i);
-            Sleep(700);
+            AlgoKeyDisplay(i);
+            Sleep(EXECUTIONSPEED);
         }
         //壁にぶつかっているので戻る
         switch (KeyList[i]) {
@@ -204,41 +223,44 @@ void Execution() {
 }
 
 
-/*****************************************************************************************************
-* 関数名 | Judgement
-* 概要　 | クリア判定
-* 引数　 | なし
-* 戻り値 | なし
-* 詳細　 | ClearCountが0の時にクリア
-*****************************************************************************************************/
-void Judgement() {
-    if (ClearCount == 0) printf("\n\nGame Clear!");
-    else printf("\n\nFailure");
+/// <summary>
+/// 関数名 | AlgoJudgement
+/// 詳細　 | ClearCountが0の時にクリア
+/// </summary>
+void AlgoJudgement() {
+    //入力キーの確認
+    if (GetKeyCount != 0) {
+        if (JudgeCount == 0) {
+            TxtLoad(GAMECLEARTXT);
+        }
+        else {
+            TxtLoad(GAMEFAILURE);
+        }
+        if (getchar() != '\n');
+    }
 }
 
 
-/*****************************************************************************************************
-* 関数名 | AlgorithmGame
-* 概要　 | アルゴリズムゲームのmain関数
-* 引数　 | AlgoSlcNum（ステージの番号）
-* 戻り値 | なし
-* 詳細　 | アルゴリズムゲームの全実行内容
-*****************************************************************************************************/
+/// <summary>
+/// 関数名 | AlgorithmGame
+/// 詳細　 | アルゴリズムゲームの全実行内容
+/// </summary>
+/// <param name="AlgoSlcNum">ステージの番号</param>
 void AlgorithmGame(AlgoSlcNum) {
     //ステージ選択に合わせたマップの読み込み
-    char MapFile[10];
-    snprintf(MapFile, 10, "map_%d.txt", AlgoSlcNum);
-    MapLoad(MapFile);
+    char MapFile[25];
+    snprintf(MapFile, 25, "AlgoMap/map_%d.txt", AlgoSlcNum);
+    AlgoMapLoad(MapFile);
 
     //マップ表示
-    MapDisplay();
+    AlgoMapDisplay();
 
     //キーを入力
-    KeyGet();
-
+    AlgoKeyGet();
+    
     //実行
-    Execution();
+    AlgoExecution();
 
     //結果判定
-    Judgement();
+    AlgoJudgement();
 }

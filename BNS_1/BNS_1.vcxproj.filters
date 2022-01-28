@@ -21,25 +21,39 @@
     <ClCompile Include="main.c">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="start.c">
+    <ClCompile Include="select.c">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="select.c">
+    <ClCompile Include="sort.c">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="TxtLoader.c">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="map_0.txt">
+    <Text Include="Dot.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
-    <Text Include="map_1.txt">
+    <Text Include="AlgoMap\map_0.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
-    <Text Include="map_2.txt">
+    <Text Include="AlgoMap\map_1.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
-    <Text Include="map_3.txt">
+    <Text Include="AlgoMap\map_2.txt">
       <Filter>リソース ファイル</Filter>
     </Text>
+    <Text Include="AlgoMap\map_3.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+    <Text Include="sort_map.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="algorithm.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
