@@ -146,15 +146,16 @@
     <ClCompile Include="sort.c" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="AlgoMap\map_0.txt" />
-    <Text Include="AlgoMap\map_1.txt" />
-    <Text Include="AlgoMap\map_2.txt" />
-    <Text Include="AlgoMap\map_3.txt" />
-    <Text Include="Dot.txt" />
-    <Text Include="sort_map.txt" />
+    <ClInclude Include="algorithm.h" />
+    <ClInclude Include="sort.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="algorithm.h" />
+    <Text Include="data\AlgoMap\map_0.txt" />
+    <Text Include="data\AlgoMap\map_1.txt" />
+    <Text Include="data\AlgoMap\map_2.txt" />
+    <Text Include="data\AlgoMap\map_3.txt" />
+    <Text Include="data\Dot.txt" />
+    <Text Include="data\sort_map.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

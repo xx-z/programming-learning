@@ -33,7 +33,6 @@ int JudgeCount = 0;
 /// </summary>
 /// <param name="MapFile">マップファイルの名前</param>
 void AlgoMapLoad(char MapFile[25]) {
-    printf("%s", MapFile);
     const char* file = MapFile;
     FILE* fp;
     char c;
@@ -72,7 +71,8 @@ void AlgoMapLoad(char MapFile[25]) {
 /// <summary>
 /// 関数名 | AlgoMapDisplay
 /// 詳細　 | MapList（マップ行列）の表示
-/// 　　　 | 0 : 通っていない場所　1: 通った場所　2: プレーヤー　3: 壁
+/// 　　　 | NOPLACE-0: 通っていない場所　OKPLACE-1: 通った場所　PLAYER-2: プレーヤー　WALL-3: 壁
+/// 　　　 | プレーヤー(2)の場所は表示する際に、通った場所(1)に変更
 /// </summary>
 void AlgoMapDisplay() {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -80,21 +80,22 @@ void AlgoMapDisplay() {
     //マップのサイズ分表示
     for (int i = 0; i < MapSizeY; i++) {
         for (int j = 0; j < MapSizeX; j++) {
-            if ('0' == MapList[j][i]) {
+            if (NOPLACE == MapList[j][i]) {
                 SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
                 printf("□");
             }
-            else if ('1' == MapList[j][i]) {
+            else if (OKPLACE == MapList[j][i]) {
                 SetConsoleTextAttribute(hStdoutHandle, T_RED);
                 printf("■");
             }
-            else if ('2' == MapList[j][i]) {
+            else if (PLAYER == MapList[j][i]) {
                 PlayerPosX = j; PlayerPosY = i;
+                //通った場所に変更
                 MapList[j][i] = '1';
                 SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY);
                 printf("　");
             }
-            else if ('3' == MapList[j][i]) {
+            else if (WALL == MapList[j][i]) {
                 SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
                 printf("　");
             }
@@ -102,7 +103,7 @@ void AlgoMapDisplay() {
         SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
         printf("\n");
     }
-    printf("\n□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n\n");
+    printf("\n□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n\n");
 }
 
 
@@ -110,6 +111,7 @@ void AlgoMapDisplay() {
 /// 関数名 | AlgoKeyGet
 /// 詳細　 | 入力キーをKeyListに代入
 /// 　　　 | 矢印キー : 代入　バックスペース : 取り消し　エンター : 終了
+/// 　　　 | 矢印キー　上 : 1　2 : 右　3 : 下　4 : 左
 /// </summary>
 void AlgoKeyGet() {
     int Key = 0;                                         //キーの種類
@@ -121,30 +123,30 @@ void AlgoKeyGet() {
     while (GetKeyCount != MAXKEY) {
         switch (getch()) {
 
-        //矢印キー
+            //矢印キー
         case 0xe0:
             switch (getch()) {
-            case 0x48: Key = 1; printf("↑"); break;
-            case 0x4d: Key = 2; printf("→"); break;
-            case 0x50: Key = 3; printf("↓"); break;
-            case 0x4b: Key = 4; printf("←"); break;
+            case UP: Key = 1; printf("↑"); break;
+            case RIGHT: Key = 2; printf("→"); break;
+            case DOWN: Key = 3; printf("↓"); break;
+            case LEFT: Key = 4; printf("←"); break;
             }
             KeyList[GetKeyCount] = Key;
             GetKeyCount++; Count++;
             break;
 
-        //バックスペース
+            //バックスペース
         case '\b':
             if (GetKeyCount != 0) {
                 GetKeyCount--; Count--;
                 KeyList[GetKeyCount] = 0;
-                setCursorPos(Count * 2, MapSizeY + 4);
+                setCursorPos(Count * 2, MapSizeY + INTERVAL);
                 printf("　");
-                setCursorPos(Count * 2, MapSizeY + 4);
+                setCursorPos(Count * 2, MapSizeY + INTERVAL);
             }
             break;
 
-        //エンター
+            //エンター
         case 0x0d:
             Count = GetKeyCount;
             GetKeyCount = MAXKEY;
@@ -186,11 +188,12 @@ void AlgoKeyDisplay(KeyNumber) {
 /// <summary>
 /// 関数名 | AlgoExecution
 /// 詳細　 | キー入力に応じてプレイヤーを移動させて表示させる
+/// 　　　 | NOPLACE-0: 通っていない場所　OKPLACE-1: 通った場所　PLAYER-2: プレーヤー　WALL-3: 壁
 /// </summary>
 void AlgoExecution() {
     for (int i = 0; i < GetKeyCount; i++) {
-        //壁にぶつかっていない時、入力がない時
-        while (MapList[PlayerPosX][PlayerPosY] != '3') {
+        //壁にぶつかっていない時
+        while (MapList[PlayerPosX][PlayerPosY] != WALL) {
             //入力キーに合わせて１つ移動
             switch (KeyList[i]) {
             case 1: PlayerPosY--; break;
@@ -198,14 +201,15 @@ void AlgoExecution() {
             case 3: PlayerPosY++; break;
             case 4: PlayerPosX--; break;
             }
-            //壁に当たっていないとき
-            if (MapList[PlayerPosX][PlayerPosY] != '3') {
-                if (MapList[PlayerPosX][PlayerPosY] == '0') JudgeCount--;
-                MapList[PlayerPosX][PlayerPosY] = '2';
+            //壁に当たっていない時
+            if (MapList[PlayerPosX][PlayerPosY] != WALL) {
+                //通ってない場所ならジャッジカウントを減らす
+                if (MapList[PlayerPosX][PlayerPosY] == NOPLACE) JudgeCount--;
+                MapList[PlayerPosX][PlayerPosY] = PLAYER;
                 setCursorPos(0, 0);
                 AlgoMapDisplay();
             }
-            //壁に当たった時
+            //壁に当たった時（キーの画面だけリセット）
             else {
                 setCursorPos(0, MapSizeY + INTERVAL);
             }
@@ -225,19 +229,15 @@ void AlgoExecution() {
 
 /// <summary>
 /// 関数名 | AlgoJudgement
-/// 詳細　 | ClearCountが0の時にクリア
+/// 詳細　 | 入力キーがあるかの確認
+/// 　　　 | JudgeCountが0の時にクリア
 /// </summary>
-void AlgoJudgement() {
-    //入力キーの確認
-    if (GetKeyCount != 0) {
-        if (JudgeCount == 0) {
-            TxtLoad(GAMECLEARTXT);
-        }
-        else {
-            TxtLoad(GAMEFAILURE);
-        }
-        if (getchar() != '\n');
-    }
+void AlgoJudge() {
+    //成功
+    if (JudgeCount == 0) TxtLoad(GAMECLEARTXT);
+    //失敗
+    else TxtLoad(GAMEFAILURE);
+    if (getchar() != '\n');
 }
 
 
@@ -249,7 +249,7 @@ void AlgoJudgement() {
 void AlgorithmGame(AlgoSlcNum) {
     //ステージ選択に合わせたマップの読み込み
     char MapFile[25];
-    snprintf(MapFile, 25, "AlgoMap/map_%d.txt", AlgoSlcNum);
+    snprintf(MapFile, 25, "data/AlgoMap/map_%d.txt", AlgoSlcNum);
     AlgoMapLoad(MapFile);
 
     //マップ表示
@@ -257,10 +257,13 @@ void AlgorithmGame(AlgoSlcNum) {
 
     //キーを入力
     AlgoKeyGet();
-    
-    //実行
-    AlgoExecution();
 
-    //結果判定
-    AlgoJudgement();
+    //入力がある場合、実行
+    if (GetKeyCount != 0) {
+        //実行
+        AlgoExecution();
+
+        //結果判定
+        AlgoJudge();
+    }
 }

@@ -32,28 +32,31 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Dot.txt">
-      <Filter>リソース ファイル</Filter>
-    </Text>
-    <Text Include="AlgoMap\map_0.txt">
-      <Filter>リソース ファイル</Filter>
-    </Text>
-    <Text Include="AlgoMap\map_1.txt">
-      <Filter>リソース ファイル</Filter>
-    </Text>
-    <Text Include="AlgoMap\map_2.txt">
-      <Filter>リソース ファイル</Filter>
-    </Text>
-    <Text Include="AlgoMap\map_3.txt">
-      <Filter>リソース ファイル</Filter>
-    </Text>
-    <Text Include="sort_map.txt">
-      <Filter>リソース ファイル</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="algorithm.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="sort.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\AlgoMap\map_0.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+    <Text Include="data\AlgoMap\map_1.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+    <Text Include="data\AlgoMap\map_2.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+    <Text Include="data\AlgoMap\map_3.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+    <Text Include="data\Dot.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
+    <Text Include="data\sort_map.txt">
+      <Filter>リソース ファイル</Filter>
+    </Text>
   </ItemGroup>
 </Project>

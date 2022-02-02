@@ -1,7 +1,6 @@
 /*****************************************************************************************************
 *
-*   セレクト画面
-*   選択の矢印キー表示
+*   セレクト画面、選択の矢印キー表示
 *
 *****************************************************************************************************/
 
@@ -19,8 +18,8 @@
 void SelectDisplay(SlcNum, MaxNumber) {
     setCursorPos(0, 2);
     for (int i = 0; i < MaxNumber; i++) {
-        if (i == SlcNum) printf("→");
-        else printf("　");
+        if (i == SlcNum) printf("　→");
+        else printf("　　");
         printf("\n");
     }
 }
@@ -48,8 +47,8 @@ int Select(MaxNumber) {
             case 0x50: SlcNum++; break;
             }
             //MaxNumberによって制限
-            if (SlcNum < 0) SlcNum = 0;
-            if (SlcNum > MaxNumber - 1) SlcNum = MaxNumber - 1;
+            if (SlcNum < 0) SlcNum = MaxNumber - 1;
+            if (SlcNum > MaxNumber - 1) SlcNum = 0;
             break;
         //エンター（入力終了）
         case 0x0d:

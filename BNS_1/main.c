@@ -1,7 +1,6 @@
 /*****************************************************************************************************
 *
-*   main関数
-*   シーン切り替え
+*   main関数、シーン切り替え
 *
 *****************************************************************************************************/
 
@@ -13,6 +12,9 @@
 
 //アルゴリズムゲームの数
 #define MAXALGORITHMNUMBER 4
+
+//ソートゲームの数
+#define MAXSORTNUMBER 4
 
 //スタート画面のテキスト
 #define STARTTXT 0
@@ -48,6 +50,8 @@ void main() {
     int GameSlcNum = 0;
     //アルゴリズムゲームのセレクトナンバー
     int AlgoSlcNum = 0;
+    //ソートゲームのセレクトナンバー
+    int SortSlcNum = 0;
 
     //スタート画面（ドットで文字を表示）
     TxtLoad(STARTTXT);
@@ -61,8 +65,8 @@ void main() {
 
         //ゲームセレクト画面
         case 0:
-            printf(" ■■■GameSelect■■■\n\n");
-            printf("　□ Algorithm Game □\n　□　　  Sort Game □\n　□ 　　　　　Exit □");
+            printf("　　■■■■Game Select■■■■\n\n");
+            printf("　　□ Algorithm Puzzle Game □\n　　□ Algorithm Sort   Game □\n　　□ 　　　　　　　　 Exit □");
             GameSlcNum = Select(MAXGAMENUMBER + 1);
             if (GameSlcNum == 0) Scene = 1;                 //アルゴリズムゲーム
             if (GameSlcNum == 1) Scene = 2;                 //ソートゲーム
@@ -71,25 +75,30 @@ void main() {
 
          //アルゴリズムゲーム
         case 1:
-            printf("■AlgorithmSelect■\n\n");
-            for (int i = 0; i < MAXALGORITHMNUMBER; i++) printf("　□ stage : %d □\n", i);
-            printf("　□ 　　 back □");
+            //選択画面表示
+            printf("■Algorithm Puzzle Select■\n\n");
+            for (int i = 0; i < MAXALGORITHMNUMBER; i++) printf("　　□ stage : %d □\n", i);
+            printf("　　□ 　　 back □");
+            //矢印キー表示
             AlgoSlcNum = Select(MAXALGORITHMNUMBER + 1);
-
-            if (AlgoSlcNum == MAXALGORITHMNUMBER) {     //ゲームselect画面に戻る
-                Scene = 0;
-            } else {                                      //アルゴリズムゲーム起動（algorithm.c）
-                AlgorithmGame(AlgoSlcNum);
-            }
+            //backボタンを選択、ゲームselect画面に戻る
+            if (AlgoSlcNum == MAXALGORITHMNUMBER) Scene = 0;
+            //ステージを選択、アルゴリズムゲーム起動（algorithm.c）
+            else AlgorithmGame(AlgoSlcNum);
             system("cls");
             break;
 
-         //ソートゲーム
+         //ソートゲーム（まだ試作段階）
         case 2:
-            system("cls");
-            printf("coming soon");
-            if (getchar() == '\n');
-            Scene = 0;
+            printf("■Algorithm Sort Select■\n\n");
+            for (int i = 0; i < MAXSORTNUMBER; i++) printf("　　□ stage : %d □\n", i);
+            printf("　　□ 　　 back □");
+            SortSlcNum = Select(MAXSORTNUMBER + 1);
+            //ゲームselect画面に戻る
+            if (SortSlcNum == MAXSORTNUMBER) Scene = 0;
+            //ステージを選択、ソートゲーム起動（sort.c）
+            else SortGame(SortSlcNum);
+
             system("cls");
             break;
 

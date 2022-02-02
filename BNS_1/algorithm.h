@@ -1,3 +1,5 @@
+#ifndef ALGORITHM_H
+#define ALGORITHM_H
 #define  T_WHITE 0x0f
 #define  T_RED 0x0c
 
@@ -16,3 +18,16 @@
 #define GAMECLEARTXT 1
 //失敗テキスト行数
 #define GAMEFAILURE 2
+
+//矢印キー入力
+#define UP 0x48
+#define DOWN 0x50
+#define RIGHT 0x4d
+#define LEFT 0x4b
+
+#define NOPLACE '0'
+#define OKPLACE '1'
+#define PLAYER '2'
+#define WALL '3'
+
+#endif
