@@ -14,7 +14,7 @@
 #define MAP_INTERVAL 10
 
 //実行時のスピード
-#define EXECUTIONSPEED 500
+#define EXECUTIONSPEED 300
 
 //クリアテキスト行数
 #define GAMECLEARTXT 1

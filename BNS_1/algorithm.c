@@ -4,6 +4,7 @@
 *
 *****************************************************************************************************/
 
+#pragma warning(disable : 4996)
 #include <stdio.h>
 #include <Windows.h>
 #include "algorithm.h"
@@ -24,7 +25,8 @@ int PlayerPosX = 0, PlayerPosY = 0;
 //ジャッチカウント
 int JudgeCount = 0;
 
-int Target = 0;
+int StageNumber = 0;
+int ScoreDataList[20][20] = { 0 };
 
 
 /// <summary>
@@ -70,6 +72,43 @@ void AlgoMapLoad(char MapFile[25]) {
 }
 
 
+void AlgoFileRead() {
+    FILE* fp; // FILE型構造体
+    char fname[] = "data/puzzlescore.csv";
+    int stage, target, best;
+    int i = 0;
+    fp = fopen(fname, "r"); // ファイルを開く。失敗するとNULLを返す。
+    if (fp == NULL) {
+        printf("%s file not open!\n", fname);
+        exit(1);
+    }
+    while (fscanf(fp, "%d,%d,%d", &stage, &target, &best) != EOF) {
+        ScoreDataList[i][0] = stage;
+        ScoreDataList[i][1] = target;
+        ScoreDataList[i][2] = best;
+        i++;
+    }
+    fclose(fp); // ファイルを閉じる
+}
+
+
+void AlgoFileWrite() {
+    FILE* fp; // FILE型構造体
+    char fname[] = "data/puzzlescore.csv";
+
+    fp = fopen(fname, "w"); // ファイルを開く。失敗するとNULLを返す。
+    if (fp == NULL) {
+        printf("%s file not open!\n", fname);
+        exit(1);
+    }
+    for (int i = 0; i < 5; i++) {
+        fprintf(fp, "%d,%d\n", ScoreDataList[i][0], ScoreDataList[i][1]);
+    }
+
+    fclose(fp); // ファイルを閉じる
+}
+
+
 /// <summary>
 /// 関数名 | AlgoMapDisplay
 /// 詳細　 | MapList（マップ行列）の表示
@@ -106,9 +145,20 @@ void AlgoMapDisplay() {
         SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
         printf("\n");
     }
-    printf("\n▽ 入力 ▽\n");
 }
 
+
+void AlgoCountDisplay() {
+    setCursorPos(0, MapSizeY + 9);
+    printf("▽入力▽　　入力回数：%d/30　　", GetKeyCount);
+    printf("目標回数：%d　　ベスト回数：", ScoreDataList[StageNumber][0]);
+    if (ScoreDataList[StageNumber][1] == 100) {
+        printf("none\n");
+    }
+    else {
+        printf("%d\n", ScoreDataList[StageNumber][1]);
+    }
+}
 
 /// <summary>
 /// 関数名 | AlgoKeyGet
@@ -124,6 +174,7 @@ void AlgoKeyGet() {
 
     //入力したキーをKeyListに代入
     while (GetKeyCount != MAXKEY) {
+        setCursorPos(GetKeyCount*2, MapSizeY + 10);
         switch (getch()) {
         case ARROW:
             switch (getch()) {
@@ -135,6 +186,7 @@ void AlgoKeyGet() {
             SoundType();
             KeyList[GetKeyCount] = Key;
             GetKeyCount++; Count++;
+            AlgoCountDisplay();
             break;
         case BACKSPACE:
             if (GetKeyCount != 0) {
@@ -144,6 +196,7 @@ void AlgoKeyGet() {
                 setCursorPos(Count * 2, MapSizeY + MAP_INTERVAL);
                 printf("　");
                 setCursorPos(Count * 2, MapSizeY + MAP_INTERVAL);
+                AlgoCountDisplay();
             }
             break;
         case ENTER:
@@ -165,6 +218,7 @@ void AlgoKeyGet() {
 }
 
 
+
 /// <summary>
 /// 関数名 | AlgoKeyDisplay
 /// 詳細　 | KeyList（入力キー）の表示
@@ -172,6 +226,7 @@ void AlgoKeyGet() {
 /// </summary>
 /// <param name="KeyNumber">キー入力配列の選択された値</param>
 void AlgoKeyDisplay(KeyNumber) {
+    setCursorPos(0, MapSizeY + 10);
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int i = 0; i < GetKeyCount; i++) {
         if (KeyNumber == i) {
@@ -241,6 +296,11 @@ void AlgoJudge() {
     printf("\n\n");
     //成功
     if (JudgeCount == 0) {
+        if (ScoreDataList[StageNumber][1] > GetKeyCount) {
+            ScoreDataList[StageNumber][1] = GetKeyCount;
+            printf("記録を更新しました！！\n");
+            AlgoFileWrite();
+        }
         TxtLoad(GAMECLEARTXT);
         SoundClear();
     }
@@ -261,8 +321,7 @@ void AlgorithmGame(AlgoSlcNum) {
     int FlgLoop = 1;
     int FlgBotton = 1;
 
-    int num[100];
-    int ret;
+    StageNumber = AlgoSlcNum;
     while (FlgLoop == 1) {
         FlgBotton = 1;
         FlgLoop = 1;
@@ -274,10 +333,12 @@ void AlgorithmGame(AlgoSlcNum) {
         snprintf(MapFile, 25, "data/AlgoMap/map_%d.txt", AlgoSlcNum);
         AlgoMapLoad(MapFile);
 
+        AlgoFileRead();
+
         //マップ表示
         AlgoMapDisplay();
-
-        //ScoreW(AlgoSlcNum);
+        
+        AlgoCountDisplay();
 
         //キーを入力
         AlgoKeyGet();
@@ -291,7 +352,7 @@ void AlgorithmGame(AlgoSlcNum) {
             AlgoJudge();
 
             //再度やるか確認
-            setCursorPos(0, MapSizeY + 20);
+            setCursorPos(0, MapSizeY + 21);
             printf("　戻る：ESC　　もう一度：Backspace");
             while (FlgBotton == 1) {
                 switch (getch()) {

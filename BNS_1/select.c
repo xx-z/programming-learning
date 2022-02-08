@@ -47,6 +47,7 @@ int Select(MaxNumber, SlcNum) {
             case 0x48: SlcNum--; break;
             case 0x50: SlcNum++; break;
             }
+            SoundType();
             //MaxNumber‚É‚æ‚Á‚Ä§ŒÀ
             if (SlcNum < 0) SlcNum = MaxNumber - 1;
             if (SlcNum > MaxNumber - 1) SlcNum = 0;
