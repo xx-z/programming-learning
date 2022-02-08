@@ -8,8 +8,10 @@
 //最大マップサイズ
 #define MAXMAP 20
 
+//説明までの間隔
+#define EXPLAIN_INTERVAL 8
 //マップから矢印までの間隔
-#define INTERVAL 6
+#define MAP_INTERVAL 10
 
 //実行時のスピード
 #define EXECUTIONSPEED 500
@@ -18,6 +20,14 @@
 #define GAMECLEARTXT 1
 //失敗テキスト行数
 #define GAMEFAILURE 2
+//パズルゲームテキスト行数
+#define EXPLAIN 3
+
+//キー入力
+#define ARROW 0xe0
+#define BACKSPACE 0x08
+#define ENTER 0x0d
+#define ESC 0x1b
 
 //矢印キー入力
 #define UP 0x48

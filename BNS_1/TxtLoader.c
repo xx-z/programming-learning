@@ -33,20 +33,37 @@ void TxtLoad(int Line) {
     }
     //EOFまでファイルから文字を1文字ずつ読み込む
     while ((c = fgetc(fp)) != EOF) {
-        if ('\n' == c) LineCount++;         //行数回数計算
         if (Line * 10 <= LineCount && LineCount < (Line + 1) * 10) {
-            if ('8' == c) {         //文字あり
+            if ('8' == c) {
                 SetConsoleTextAttribute(hStdoutHandle, COL_BLUE);
                 printf("■");
             }
-            else if ('\n' == c) {
-                printf("%c", c);
-            }
-            else {
+            else if ('0' == c) {
                 SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
                 printf("□");
             }
+            else if ('2' == c) {
+                SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+                printf("　");
+            }
+            else if ('3' == c) {
+                SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+                printf("　");
+            }
+            else if ('4' == c) {
+                SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+                printf(" ");
+            }
+            else if ('5' == c) {
+                SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_RED | BACKGROUND_INTENSITY);
+                printf(" ");
+            }
+            else {
+                SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
+                printf("%c", c);
+            }
         }
+        if ('\n' == c) LineCount++;         //行数回数計算
     }
     SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
     fclose(fp);

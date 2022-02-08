@@ -7,7 +7,9 @@
 
 #include <stdio.h>
 #include <Windows.h>
+#include <string.h>
 #include "sort.h"
+
 
 //入力キーのリスト
 int SortKeyList[MAXKEY] = { 0 };
@@ -56,6 +58,7 @@ void SortMapLoad(int Line) {
 /// 　　　 | 数字はブロックとなるように色付けする
 /// </summary>
 void SortHeadDisplay() {
+    setCursorPos(1, EXPLAIN_INTERVAL);
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int i = 0; i < SortMapCount; i++) {
         SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
@@ -76,7 +79,7 @@ void SortHeadDisplay() {
 /// <param name="Key">ソートマップの表示</param>
 void SortMapDisplay(int Key) {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    setCursorPos(1, 1);
+    setCursorPos(2, MAP_INTERVAL);
     for (int i = 0; i < SortMapCount; i++) {
         if (Key == i) {
             SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_RED | BACKGROUND_INTENSITY | T_WHITE);
@@ -97,6 +100,7 @@ void SortMapDisplay(int Key) {
 /// 詳細　 | 選択したキーを表示する
 /// </summary>
 void SortKeyDisplay() {
+    printf("▽ 入力 ▽\n");
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int i = 0; i < SortGetKeyCount; i++) {
         if (i % 2 == 0) {
@@ -138,39 +142,44 @@ void SortKeyGet() {
         SortKeyDisplay();
 
         switch (getch()) {
-        //矢印キー
-        case 0xe0:
+        case ARROW:
             switch (getch()) {
-            case 0x4d:  //→
+            case RIGHT:  //→
                 Key++;
                 if (Key >= SortMapCount) Key = SortMapCount - 1;
                 break;
-            case 0x4b:  //←
+            case LEFT:  //←
                 Key--;
                 if (Key < 0) Key = 0;
                 break;
-            case 0x50:  //↓
+            case DOWN:  //↓
+                SoundType();
                 SortKeyList[SortGetKeyCount] = Key;
                 SortGetKeyCount++; Count++;
                 break;
             }
             break;
-        //バックスペース
-        case '\b':
+        case BACKSPACE:
             if (SortGetKeyCount != 0) {
+                SoundTypeCancel();
                 SortGetKeyCount--; Count--;
                 SortKeyList[SortGetKeyCount] = 0;
-                setCursorPos(Count * 8, 3);
+                setCursorPos(Count * 8, KEY_INTERVAL);
                 printf("                                   ");
-                setCursorPos(Count * 8, 3);
+                setCursorPos(Count * 8, KEY_INTERVAL);
             }
             break;
-        //エンター
-        case 0x0d:
-            if (SortGetKeyCount % 2 == 0) {
+        case ENTER:
+            if (SortGetKeyCount % 2 == 0 && SortGetKeyCount != 0) {
+                SoundTypeCancel();
                 Count = SortGetKeyCount;
                 SortGetKeyCount = MAXKEY;
             }
+            break;
+        case ESC:
+            SoundTypeCancel();
+            Count = 0;
+            SortGetKeyCount = MAXKEY;
             break;
         }
     }
@@ -191,11 +200,11 @@ void SortExecution() {
     setCursorPos(0, 0);
     SortHeadDisplay();
     for (int i = 0; i < SortGetKeyCount / 2; i++) {
-        Sleep(1000);
+        Sleep(300);
         Number = SortMapList[SortKeyList[i * 2]];
         SortMapList[SortKeyList[i * 2]] = SortMapList[SortKeyList[i * 2 + 1]];
         SortMapDisplay(SortKeyList[i * 2]);
-        Sleep(1000);
+        Sleep(300);
         SortMapList[SortKeyList[i * 2 + 1]] = Number;
         SortMapDisplay(SortKeyList[i * 2 + 1]);
     }
@@ -209,12 +218,18 @@ void SortExecution() {
 void SortJudge() {
     int JudgeCount = 0;
     SortKeyDisplay();
-    for (int i = 0; i < SortGetKeyCount; i++) {
+    for (int i = 0; i < SortMapCount; i++) {
         if (SortMapList[i] == i + 48) JudgeCount++;
     }
-    if (JudgeCount == SortGetKeyCount) TxtLoad(GAMECLEARTXT);
-    else TxtLoad(GAMEFAILURE);
-    if (getchar() != '\n');
+    printf("\n\n");
+    if (JudgeCount == SortMapCount) {
+        TxtLoad(GAMECLEARTXT);
+        SoundClear();
+    }
+    else {
+        TxtLoad(GAMEFAILURE);
+        SoundFailure();
+    }
 }
 
 
@@ -224,15 +239,47 @@ void SortJudge() {
 /// </summary>
 /// <param name="SortSlcNum">ステージ番号</param>
 void SortGame(int SortSlcNum) {
-    //選択したステージを読み込み
-    SortMapLoad(SortSlcNum);
+    int FlgLoop = 1;
+    int FlgBotton = 1;
+    while (FlgLoop == 1) {
+        FlgBotton = 1;
+        FlgLoop = 1;
+        TxtLoad(EXPLAIN);
 
-    SortHeadDisplay();
-    SortKeyGet();
+        //選択したステージを読み込み
+        SortMapLoad(SortSlcNum);
 
-    //入力がある場合
-    if (SortGetKeyCount != 0) {
-        SortExecution();
-        SortJudge();
+        SortHeadDisplay();
+        SortKeyGet();
+
+        //入力がある場合
+        if (SortGetKeyCount != 0) {
+            //実行
+            SortExecution();
+
+            //結果判定
+            SortJudge();
+
+            //再度やるか確認
+            setCursorPos(0, 22);
+            printf("　戻る：ESC　　もう一度：Backspace");
+            while (FlgBotton == 1) {
+                switch (getch()) {
+                case BACKSPACE:
+                    PlaySound(TEXT("data/sound/type_cancel.wav"), NULL, SND_ASYNC);
+                    FlgBotton = 0;
+                    system("cls");
+                    break;
+                case ESC:
+                    PlaySound(TEXT("data/sound/type_cancel.wav"), NULL, SND_ASYNC);
+                    FlgBotton = 0;
+                    FlgLoop = 0;
+                    break;
+                }
+            }
+        }
+        else {
+            FlgLoop = 0;
+        }
     }
 }

@@ -16,7 +16,7 @@
 /// <param name="SlcNum">選択した数</param>
 /// <param name="MaxNumber">セレクトの数</param>
 void SelectDisplay(SlcNum, MaxNumber) {
-    setCursorPos(0, 2);
+    setCursorPos(0, 3);
     for (int i = 0; i < MaxNumber; i++) {
         if (i == SlcNum) printf("　→");
         else printf("　　");
@@ -31,10 +31,11 @@ void SelectDisplay(SlcNum, MaxNumber) {
 /// 　　　 | MaxNumberでセレクトナンバーを制限
 /// </summary>
 /// <param name="MaxNumber">セレクトの数</param>
+/// <param name="SlcNum">現在セレクトしている数</param>
 /// <returns>セレクトした値</returns>
-int Select(MaxNumber) {
+int Select(MaxNumber, SlcNum) {
     //セレクトナンバー
-    int SlcNum = 0;
+    //int SlcNum = 0;
     //while文のフラグ変数
     int Flg = 1;
 
@@ -52,6 +53,7 @@ int Select(MaxNumber) {
             break;
         //エンター（入力終了）
         case 0x0d:
+            SoundBotton();
             Flg = 0;
             break;
         }

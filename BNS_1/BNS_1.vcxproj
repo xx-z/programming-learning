@@ -142,6 +142,7 @@
     <ClCompile Include="algorithm.c" />
     <ClCompile Include="select.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="sound.c" />
     <ClCompile Include="TxtLoader.c" />
     <ClCompile Include="sort.c" />
   </ItemGroup>

@@ -1,6 +1,6 @@
-/*****************************************************************************************************
+ï»¿/*****************************************************************************************************
 *
-*@ƒAƒ‹ƒSƒŠƒYƒ€ƒQ[ƒ€
+*ã€€ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã‚²ãƒ¼ãƒ 
 *
 *****************************************************************************************************/
 
@@ -8,37 +8,39 @@
 #include <Windows.h>
 #include "algorithm.h"
 
-//ƒL[“ü—Í”z—ñ
+//ã‚­ãƒ¼å…¥åŠ›é…åˆ—
 int KeyList[MAXKEY] = { 0 };
-//ƒL[“ü—Í‰ñ”
+//ã‚­ãƒ¼å…¥åŠ›å›æ•°
 int GetKeyCount = 0;
 
-//ƒ}ƒbƒv‚Ìs—ñƒŠƒXƒg
+//ãƒãƒƒãƒ—ã®è¡Œåˆ—ãƒªã‚¹ãƒˆ
 char MapList[MAXMAP][MAXMAP];
-//ƒ}ƒbƒv‚ÌXY‚ÌÅ‘åƒTƒCƒY
+//ãƒãƒƒãƒ—ã®XYã®æœ€å¤§ã‚µã‚¤ã‚º
 int MapSizeX = 0, MapSizeY = 0;
 
-//Œ»İ‚ÌƒvƒŒ[ƒ„[‚ÌÀ•W
+//ç¾åœ¨ã®ãƒ—ãƒ¬ãƒ¼ãƒ¤ãƒ¼ã®åº§æ¨™
 int PlayerPosX = 0, PlayerPosY = 0;
 
-//ƒWƒƒƒbƒ`ƒJƒEƒ“ƒg
+//ã‚¸ãƒ£ãƒƒãƒã‚«ã‚¦ãƒ³ãƒˆ
 int JudgeCount = 0;
+
+int Target = 0;
 
 
 /// <summary>
-/// ŠÖ”–¼ | AlgoMapLoad
-/// Ú×@ | MapFileiƒ}ƒbƒvƒtƒ@ƒCƒ‹j‚Ìƒ}ƒbƒv‚ğ“Ç‚İ‚İ
-/// @@@ | MapListiƒ}ƒbƒvs—ñj‚É‘ã“ü
-/// @@@ | ƒ}ƒbƒv‚ÌÅ‘åƒTƒCƒYŒv‘ªiMapSizeX, Yj
+/// é–¢æ•°å | AlgoMapLoad
+/// è©³ç´°ã€€ | MapFileï¼ˆãƒãƒƒãƒ—ãƒ•ã‚¡ã‚¤ãƒ«ï¼‰ã®ãƒãƒƒãƒ—ã‚’èª­ã¿è¾¼ã¿
+/// ã€€ã€€ã€€ | MapListï¼ˆãƒãƒƒãƒ—è¡Œåˆ—ï¼‰ã«ä»£å…¥
+/// ã€€ã€€ã€€ | ãƒãƒƒãƒ—ã®æœ€å¤§ã‚µã‚¤ã‚ºè¨ˆæ¸¬ï¼ˆMapSizeX, Yï¼‰
 /// </summary>
-/// <param name="MapFile">ƒ}ƒbƒvƒtƒ@ƒCƒ‹‚Ì–¼‘O</param>
+/// <param name="MapFile">ãƒãƒƒãƒ—ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰</param>
 void AlgoMapLoad(char MapFile[25]) {
     const char* file = MapFile;
     FILE* fp;
     char c;
     int X = 0, Y = 0;
 
-    //ƒf[ƒ^‚Ì‰Šú‰»
+    //ãƒ‡ãƒ¼ã‚¿ã®åˆæœŸåŒ–
     JudgeCount = 0;
     for (int i = 0; i < MAXMAP; i++) {
         for (int j = 0; j < MAXMAP; j++) {
@@ -48,18 +50,18 @@ void AlgoMapLoad(char MapFile[25]) {
 
     fopen_s(&fp, file, "r");
     if (fp == NULL) {
-        printf("\nƒtƒ@ƒCƒ‹ƒGƒ‰[\n%s‚ÌƒI[ƒvƒ“‚É¸”s‚µ‚Ü‚µ‚½B\n", file);
+        printf("\nãƒ•ã‚¡ã‚¤ãƒ«ã‚¨ãƒ©ãƒ¼\n%sã®ã‚ªãƒ¼ãƒ—ãƒ³ã«å¤±æ•—ã—ã¾ã—ãŸã€‚\n", file);
         exit(1);
     }
-    //EOF‚Ü‚Åƒtƒ@ƒCƒ‹‚©‚ç•¶š‚ğ1•¶š‚¸‚Â“Ç‚İ‚Ş
+    //EOFã¾ã§ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰æ–‡å­—ã‚’1æ–‡å­—ãšã¤èª­ã¿è¾¼ã‚€
     while ((c = fgetc(fp)) != EOF) {
-        //“Ç‚İ‚ñ‚¾ƒf[ƒ^‚ğ“ñŸŒ³”z—ñ‚ÌMapList‚É‘ã“ü
+        //èª­ã¿è¾¼ã‚“ã ãƒ‡ãƒ¼ã‚¿ã‚’äºŒæ¬¡å…ƒé…åˆ—ã®MapListã«ä»£å…¥
         if ('\n' == c) {
             if (MapSizeX < X) MapSizeX = X;
             Y++; X = 0;
         }
         else {
-            if ('0' == c) JudgeCount++;     //ƒNƒŠƒA”»’è‚Åg‚¤0‚ÌŒÂ”‚ğ”‚¦‚é
+            if ('0' == c) JudgeCount++;     //ã‚¯ãƒªã‚¢åˆ¤å®šã§ä½¿ã†0ã®å€‹æ•°ã‚’æ•°ãˆã‚‹
             MapList[X][Y] = c; X++;
         }
     }
@@ -69,102 +71,106 @@ void AlgoMapLoad(char MapFile[25]) {
 
 
 /// <summary>
-/// ŠÖ”–¼ | AlgoMapDisplay
-/// Ú×@ | MapListiƒ}ƒbƒvs—ñj‚Ì•\¦
-/// @@@ | NOPLACE-0: ’Ê‚Á‚Ä‚¢‚È‚¢êŠ@OKPLACE-1: ’Ê‚Á‚½êŠ@PLAYER-2: ƒvƒŒ[ƒ„[@WALL-3: •Ç
-/// @@@ | ƒvƒŒ[ƒ„[(2)‚ÌêŠ‚Í•\¦‚·‚éÛ‚ÉA’Ê‚Á‚½êŠ(1)‚É•ÏX
+/// é–¢æ•°å | AlgoMapDisplay
+/// è©³ç´°ã€€ | MapListï¼ˆãƒãƒƒãƒ—è¡Œåˆ—ï¼‰ã®è¡¨ç¤º
+/// ã€€ã€€ã€€ | NOPLACE-0: é€šã£ã¦ã„ãªã„å ´æ‰€ã€€OKPLACE-1: é€šã£ãŸå ´æ‰€ã€€PLAYER-2: ãƒ—ãƒ¬ãƒ¼ãƒ¤ãƒ¼ã€€WALL-3: å£
+/// ã€€ã€€ã€€ | ãƒ—ãƒ¬ãƒ¼ãƒ¤ãƒ¼(2)ã®å ´æ‰€ã¯è¡¨ç¤ºã™ã‚‹éš›ã«ã€é€šã£ãŸå ´æ‰€(1)ã«å¤‰æ›´
 /// </summary>
 void AlgoMapDisplay() {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    printf("Algorithm Game\n\n");
-    //ƒ}ƒbƒv‚ÌƒTƒCƒY•ª•\¦
+    setCursorPos(0, EXPLAIN_INTERVAL);
+    //ãƒãƒƒãƒ—ã®ã‚µã‚¤ã‚ºåˆ†è¡¨ç¤º
     for (int i = 0; i < MapSizeY; i++) {
         for (int j = 0; j < MapSizeX; j++) {
+            if (j == 0) printf("ã€€ã€€");
             if (NOPLACE == MapList[j][i]) {
                 SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
-                printf(" ");
+                printf("â–¡");
             }
             else if (OKPLACE == MapList[j][i]) {
                 SetConsoleTextAttribute(hStdoutHandle, T_RED);
-                printf("¡");
+                printf("â– ");
             }
             else if (PLAYER == MapList[j][i]) {
                 PlayerPosX = j; PlayerPosY = i;
-                //’Ê‚Á‚½êŠ‚É•ÏX
+                //é€šã£ãŸå ´æ‰€ã«å¤‰æ›´
                 MapList[j][i] = '1';
                 SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY);
-                printf("@");
+                printf("ã€€");
             }
             else if (WALL == MapList[j][i]) {
                 SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
-                printf("@");
+                printf("ã€€");
             }
         }
         SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
         printf("\n");
     }
-    printf("\n                                        \n                                        \n\n");
+    printf("\nâ–½ å…¥åŠ› â–½\n");
 }
 
 
 /// <summary>
-/// ŠÖ”–¼ | AlgoKeyGet
-/// Ú×@ | “ü—ÍƒL[‚ğKeyList‚É‘ã“ü
-/// @@@ | –îˆóƒL[ : ‘ã“ü@ƒoƒbƒNƒXƒy[ƒX : æ‚èÁ‚µ@ƒGƒ“ƒ^[ : I—¹
-/// @@@ | –îˆóƒL[@ã : 1@2 : ‰E@3 : ‰º@4 : ¶
+/// é–¢æ•°å | AlgoKeyGet
+/// è©³ç´°ã€€ | å…¥åŠ›ã‚­ãƒ¼ã‚’KeyListã«ä»£å…¥
+/// ã€€ã€€ã€€ | çŸ¢å°ã‚­ãƒ¼ : ä»£å…¥ã€€ãƒãƒƒã‚¯ã‚¹ãƒšãƒ¼ã‚¹ : å–ã‚Šæ¶ˆã—ã€€ã‚¨ãƒ³ã‚¿ãƒ¼ : çµ‚äº†ã€€ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ï¼šæˆ»ã‚‹
+/// ã€€ã€€ã€€ | çŸ¢å°ã‚­ãƒ¼ã€€ä¸Š : 1ã€€2 : å³ã€€3 : ä¸‹ã€€4 : å·¦
 /// </summary>
 void AlgoKeyGet() {
-    int Key = 0;                                         //ƒL[‚Ìí—Ş
-    int Count = 0;                                      //“ü—Í‰ñ”
+    int Key = 0;                                         //ã‚­ãƒ¼ã®ç¨®é¡
+    int Count = 0;                                      //å…¥åŠ›å›æ•°
     GetKeyCount = 0;
     for (int i = 0; i < MAXKEY; i++) KeyList[i] = 0;
 
-    //“ü—Í‚µ‚½ƒL[‚ğKeyList‚É‘ã“ü
+    //å…¥åŠ›ã—ãŸã‚­ãƒ¼ã‚’KeyListã«ä»£å…¥
     while (GetKeyCount != MAXKEY) {
         switch (getch()) {
-
-            //–îˆóƒL[
-        case 0xe0:
+        case ARROW:
             switch (getch()) {
-            case UP: Key = 1; printf("ª"); break;
-            case RIGHT: Key = 2; printf("¨"); break;
-            case DOWN: Key = 3; printf("«"); break;
-            case LEFT: Key = 4; printf("©"); break;
+            case UP: Key = 1; printf("â†‘"); break;
+            case RIGHT: Key = 2; printf("â†’"); break;
+            case DOWN: Key = 3; printf("â†“"); break;
+            case LEFT: Key = 4; printf("â†"); break;
             }
+            SoundType();
             KeyList[GetKeyCount] = Key;
             GetKeyCount++; Count++;
             break;
-
-            //ƒoƒbƒNƒXƒy[ƒX
-        case '\b':
+        case BACKSPACE:
             if (GetKeyCount != 0) {
+                SoundTypeCancel();
                 GetKeyCount--; Count--;
                 KeyList[GetKeyCount] = 0;
-                setCursorPos(Count * 2, MapSizeY + INTERVAL);
-                printf("@");
-                setCursorPos(Count * 2, MapSizeY + INTERVAL);
+                setCursorPos(Count * 2, MapSizeY + MAP_INTERVAL);
+                printf("ã€€");
+                setCursorPos(Count * 2, MapSizeY + MAP_INTERVAL);
             }
             break;
-
-            //ƒGƒ“ƒ^[
-        case 0x0d:
-            Count = GetKeyCount;
+        case ENTER:
+            if (GetKeyCount != 0) {
+                SoundTypeCancel();
+                Count = GetKeyCount;
+                GetKeyCount = MAXKEY;
+            }
+            break;
+        case ESC:
+            PlaySound(TEXT("data/sound/type_cancel.wav"), NULL, SND_ASYNC);
+            Count = 0;
             GetKeyCount = MAXKEY;
             break;
         }
     }
-    //“ü—Í‰ñ”‚ğ‘ã“ü
+    //å…¥åŠ›å›æ•°ã‚’ä»£å…¥
     GetKeyCount = Count;
-    printf("\n");
 }
 
 
 /// <summary>
-/// ŠÖ”–¼ | AlgoKeyDisplay
-/// Ú×@ | KeyListi“ü—ÍƒL[j‚Ì•\¦
-/// @@@ | Às’†‚Ì–îˆóƒL[‚Ì‹­’²•\¦
+/// é–¢æ•°å | AlgoKeyDisplay
+/// è©³ç´°ã€€ | KeyListï¼ˆå…¥åŠ›ã‚­ãƒ¼ï¼‰ã®è¡¨ç¤º
+/// ã€€ã€€ã€€ | å®Ÿè¡Œä¸­ã®çŸ¢å°ã‚­ãƒ¼ã®å¼·èª¿è¡¨ç¤º
 /// </summary>
-/// <param name="KeyNumber">ƒL[“ü—Í”z—ñ‚Ì‘I‘ğ‚³‚ê‚½’l</param>
+/// <param name="KeyNumber">ã‚­ãƒ¼å…¥åŠ›é…åˆ—ã®é¸æŠã•ã‚ŒãŸå€¤</param>
 void AlgoKeyDisplay(KeyNumber) {
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int i = 0; i < GetKeyCount; i++) {
@@ -175,10 +181,10 @@ void AlgoKeyDisplay(KeyNumber) {
             SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
         }
         switch (KeyList[i]) {
-        case 1: printf("ª"); break;
-        case 2: printf("¨"); break;
-        case 3: printf("«"); break;
-        case 4: printf("©"); break;
+        case 1: printf("â†‘"); break;
+        case 2: printf("â†’"); break;
+        case 3: printf("â†“"); break;
+        case 4: printf("â†"); break;
         }
     }
     SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
@@ -186,37 +192,36 @@ void AlgoKeyDisplay(KeyNumber) {
 
 
 /// <summary>
-/// ŠÖ”–¼ | AlgoExecution
-/// Ú×@ | ƒL[“ü—Í‚É‰‚¶‚ÄƒvƒŒƒCƒ„[‚ğˆÚ“®‚³‚¹‚Ä•\¦‚³‚¹‚é
-/// @@@ | NOPLACE-0: ’Ê‚Á‚Ä‚¢‚È‚¢êŠ@OKPLACE-1: ’Ê‚Á‚½êŠ@PLAYER-2: ƒvƒŒ[ƒ„[@WALL-3: •Ç
+/// é–¢æ•°å | AlgoExecution
+/// è©³ç´°ã€€ | ã‚­ãƒ¼å…¥åŠ›ã«å¿œã˜ã¦ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ç§»å‹•ã•ã›ã¦è¡¨ç¤ºã•ã›ã‚‹
+/// ã€€ã€€ã€€ | NOPLACE-0: é€šã£ã¦ã„ãªã„å ´æ‰€ã€€OKPLACE-1: é€šã£ãŸå ´æ‰€ã€€PLAYER-2: ãƒ—ãƒ¬ãƒ¼ãƒ¤ãƒ¼ã€€WALL-3: å£
 /// </summary>
 void AlgoExecution() {
     for (int i = 0; i < GetKeyCount; i++) {
-        //•Ç‚É‚Ô‚Â‚©‚Á‚Ä‚¢‚È‚¢
+        //å£ã«ã¶ã¤ã‹ã£ã¦ã„ãªã„æ™‚
         while (MapList[PlayerPosX][PlayerPosY] != WALL) {
-            //“ü—ÍƒL[‚É‡‚í‚¹‚Ä‚P‚ÂˆÚ“®
+            //å…¥åŠ›ã‚­ãƒ¼ã«åˆã‚ã›ã¦ï¼‘ã¤ç§»å‹•
             switch (KeyList[i]) {
             case 1: PlayerPosY--; break;
             case 2: PlayerPosX++; break;
             case 3: PlayerPosY++; break;
             case 4: PlayerPosX--; break;
             }
-            //•Ç‚É“–‚½‚Á‚Ä‚¢‚È‚¢
+            //å£ã«å½“ãŸã£ã¦ã„ãªã„æ™‚
             if (MapList[PlayerPosX][PlayerPosY] != WALL) {
-                //’Ê‚Á‚Ä‚È‚¢êŠ‚È‚çƒWƒƒƒbƒWƒJƒEƒ“ƒg‚ğŒ¸‚ç‚·
+                //é€šã£ã¦ãªã„å ´æ‰€ãªã‚‰ã‚¸ãƒ£ãƒƒã‚¸ã‚«ã‚¦ãƒ³ãƒˆã‚’æ¸›ã‚‰ã™
                 if (MapList[PlayerPosX][PlayerPosY] == NOPLACE) JudgeCount--;
                 MapList[PlayerPosX][PlayerPosY] = PLAYER;
-                setCursorPos(0, 0);
                 AlgoMapDisplay();
             }
-            //•Ç‚É“–‚½‚Á‚½iƒL[‚Ì‰æ–Ê‚¾‚¯ƒŠƒZƒbƒgj
+            //å£ã«å½“ãŸã£ãŸæ™‚ï¼ˆã‚­ãƒ¼ã®ç”»é¢ã ã‘ãƒªã‚»ãƒƒãƒˆï¼‰
             else {
-                setCursorPos(0, MapSizeY + INTERVAL);
+                setCursorPos(0, MapSizeY + MAP_INTERVAL);
             }
             AlgoKeyDisplay(i);
             Sleep(EXECUTIONSPEED);
         }
-        //•Ç‚É‚Ô‚Â‚©‚Á‚Ä‚¢‚é‚Ì‚Å–ß‚é
+        //å£ã«ã¶ã¤ã‹ã£ã¦ã„ã‚‹ã®ã§æˆ»ã‚‹
         switch (KeyList[i]) {
         case 1: PlayerPosY++; break;
         case 2: PlayerPosX--; break;
@@ -228,42 +233,83 @@ void AlgoExecution() {
 
 
 /// <summary>
-/// ŠÖ”–¼ | AlgoJudgement
-/// Ú×@ | “ü—ÍƒL[‚ª‚ ‚é‚©‚ÌŠm”F
-/// @@@ | JudgeCount‚ª0‚Ì‚ÉƒNƒŠƒA
+/// é–¢æ•°å | AlgoJudgement
+/// è©³ç´°ã€€ | å…¥åŠ›ã‚­ãƒ¼ãŒã‚ã‚‹ã‹ã®ç¢ºèª
+/// ã€€ã€€ã€€ | JudgeCountãŒ0ã®æ™‚ã«ã‚¯ãƒªã‚¢
 /// </summary>
 void AlgoJudge() {
-    //¬Œ÷
-    if (JudgeCount == 0) TxtLoad(GAMECLEARTXT);
-    //¸”s
-    else TxtLoad(GAMEFAILURE);
-    if (getchar() != '\n');
+    printf("\n\n");
+    //æˆåŠŸ
+    if (JudgeCount == 0) {
+        TxtLoad(GAMECLEARTXT);
+        SoundClear();
+    }
+    //å¤±æ•—
+    else {
+        TxtLoad(GAMEFAILURE);
+        SoundFailure();
+    }
 }
 
 
 /// <summary>
-/// ŠÖ”–¼ | AlgorithmGame
-/// Ú×@ | ƒAƒ‹ƒSƒŠƒYƒ€ƒQ[ƒ€‚Ì‘SÀs“à—e
+/// é–¢æ•°å | AlgorithmGame
+/// è©³ç´°ã€€ | ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã‚²ãƒ¼ãƒ ã®å…¨å®Ÿè¡Œå†…å®¹
 /// </summary>
-/// <param name="AlgoSlcNum">ƒXƒe[ƒW‚Ì”Ô†</param>
+/// <param name="AlgoSlcNum">ã‚¹ãƒ†ãƒ¼ã‚¸ã®ç•ªå·</param>
 void AlgorithmGame(AlgoSlcNum) {
-    //ƒXƒe[ƒW‘I‘ğ‚É‡‚í‚¹‚½ƒ}ƒbƒv‚Ì“Ç‚İ‚İ
-    char MapFile[25];
-    snprintf(MapFile, 25, "data/AlgoMap/map_%d.txt", AlgoSlcNum);
-    AlgoMapLoad(MapFile);
+    int FlgLoop = 1;
+    int FlgBotton = 1;
 
-    //ƒ}ƒbƒv•\¦
-    AlgoMapDisplay();
+    int num[100];
+    int ret;
+    while (FlgLoop == 1) {
+        FlgBotton = 1;
+        FlgLoop = 1;
+        //èª¬æ˜
+        TxtLoad(EXPLAIN);
 
-    //ƒL[‚ğ“ü—Í
-    AlgoKeyGet();
+        //ã‚¹ãƒ†ãƒ¼ã‚¸é¸æŠã«åˆã‚ã›ãŸãƒãƒƒãƒ—ã®èª­ã¿è¾¼ã¿
+        char MapFile[25];
+        snprintf(MapFile, 25, "data/AlgoMap/map_%d.txt", AlgoSlcNum);
+        AlgoMapLoad(MapFile);
 
-    //“ü—Í‚ª‚ ‚éê‡AÀs
-    if (GetKeyCount != 0) {
-        //Às
-        AlgoExecution();
+        //ãƒãƒƒãƒ—è¡¨ç¤º
+        AlgoMapDisplay();
 
-        //Œ‹‰Ê”»’è
-        AlgoJudge();
+        //ScoreW(AlgoSlcNum);
+
+        //ã‚­ãƒ¼ã‚’å…¥åŠ›
+        AlgoKeyGet();
+
+        //å…¥åŠ›ãŒã‚ã‚‹å ´åˆã€å®Ÿè¡Œ
+        if (GetKeyCount != 0) {
+            //å®Ÿè¡Œ
+            AlgoExecution();
+
+            //çµæœåˆ¤å®š
+            AlgoJudge();
+
+            //å†åº¦ã‚„ã‚‹ã‹ç¢ºèª
+            setCursorPos(0, MapSizeY + 20);
+            printf("ã€€æˆ»ã‚‹ï¼šESCã€€ã€€ã‚‚ã†ä¸€åº¦ï¼šBackspace");
+            while (FlgBotton == 1) {
+                switch (getch()) {
+                case BACKSPACE:
+                    SoundTypeCancel();
+                    FlgBotton = 0;
+                    system("cls");
+                    break;
+                case ESC:
+                    SoundTypeCancel();
+                    FlgBotton = 0;
+                    FlgLoop = 0;
+                    break;
+                }
+            }
+        }
+        else {
+            FlgLoop = 0;
+        }
     }
 }
