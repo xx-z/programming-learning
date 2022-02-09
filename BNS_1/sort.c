@@ -100,24 +100,31 @@ void SortMapDisplay(int Key) {
 /// 詳細　 | 選択したキーを表示する
 /// </summary>
 void SortKeyDisplay() {
+    setCursorPos(0, 11);
     printf("▽ 入力 ▽\n");
     HANDLE hStdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     for (int i = 0; i < SortGetKeyCount; i++) {
-        if (i % 2 == 0) {
-            SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
-            printf(" (");
-            SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY | T_WHITE);
-            printf(" %d ", SortKeyList[i]);
-            SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
-            printf(" ⇔");
-        }
-        else {
-            SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
-            printf(" ");
-            SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY | T_WHITE);
-            printf(" %d ", SortKeyList[i]);
-            SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
-            printf(") →");
+        if (SortKeyList[0] != -1) {
+            if (i % 2 == 0) {
+                if (i != 0) {
+                    SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
+                    printf("→");
+                }
+                SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
+                printf(" (");
+                SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY | T_WHITE);
+                printf(" %d ", SortKeyList[i]);
+                SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
+                printf(" ⇔");
+            }
+            else {
+                SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
+                printf(" ");
+                SetConsoleTextAttribute(hStdoutHandle, BACKGROUND_BLUE | BACKGROUND_INTENSITY | T_WHITE);
+                printf(" %d ", SortKeyList[i]);
+                SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
+                printf(") ");
+            }
         }
     }
     SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
@@ -131,16 +138,13 @@ void SortKeyDisplay() {
 void SortKeyGet() {
     int Key = 0;                                         //キーの種類
     int Count = 0;                                      //入力回数
+    int Place = 0;
     //初期化
     SortGetKeyCount = 0;
     for (int i = 0; i < MAXKEY; i++) SortKeyList[i] = 0;
 
     //入力したキーをKeyListに代入
     while (SortGetKeyCount != MAXKEY) {
-        //マップとキーを表示
-        SortMapDisplay(Key);
-        SortKeyDisplay();
-
         switch (getch()) {
         case ARROW:
             switch (getch()) {
@@ -158,16 +162,31 @@ void SortKeyGet() {
                 SortGetKeyCount++; Count++;
                 break;
             }
+            //マップとキーを表示
+            SortMapDisplay(Key);
+            SortKeyDisplay();
             break;
         case BACKSPACE:
             if (SortGetKeyCount != 0) {
                 SoundTypeCancel();
                 SortGetKeyCount--; Count--;
                 SortKeyList[SortGetKeyCount] = 0;
-                setCursorPos(Count * 8, KEY_INTERVAL);
+                if (Count == 0) {
+                    Place = 0;
+                }
+                else if (Count == 1) {
+                    Place = 8;
+                }
+                else {
+                    Place = (Count / 2) * 5 + ((Count / 2) - 1) * 11 + 8;
+                }
+                setCursorPos(Place, KEY_INTERVAL);
                 printf("                                   ");
-                setCursorPos(Count * 8, KEY_INTERVAL);
+                setCursorPos(Place, KEY_INTERVAL);
             }
+            //マップとキーを表示
+            SortMapDisplay(Key);
+            SortKeyDisplay();
             break;
         case ENTER:
             if (SortGetKeyCount % 2 == 0 && SortGetKeyCount != 0) {
@@ -241,6 +260,9 @@ void SortJudge() {
 void SortGame(int SortSlcNum) {
     int FlgLoop = 1;
     int FlgBotton = 1;
+    for (int i = 0; i < MAXKEY; i++) {
+        SortKeyList[i] = -1;
+    }
     while (FlgLoop == 1) {
         FlgBotton = 1;
         FlgLoop = 1;
@@ -250,6 +272,9 @@ void SortGame(int SortSlcNum) {
         SortMapLoad(SortSlcNum);
 
         SortHeadDisplay();
+        //マップとキーを表示
+        SortMapDisplay(0);
+        SortKeyDisplay();
         SortKeyGet();
 
         //入力がある場合

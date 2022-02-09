@@ -19,6 +19,7 @@
 //スタート画面のテキスト
 #define STARTTXT 0
 
+#define ENTER 0x0d
 
 /// <summary>
 /// 関数名 | setCursorPos
@@ -53,10 +54,18 @@ int main() {
     //ソートゲームのセレクトナンバー
     int SortSlcNum = 0;
 
+    int FlgStart = 1;
+
     //スタート画面（ドットで文字を表示）
     TxtLoad(STARTTXT);
     printf("　　　　　　　　　　　　　　　　　　　　　　　press enter");
-    if (getchar() == '\n');
+    while (FlgStart == 1) {
+        switch (getch()) {
+        case ENTER:
+            FlgStart = 0;
+        }
+
+    }
     SoundNone();
     system("cls");
 
@@ -68,6 +77,7 @@ int main() {
         case 0:
             printf("\n　　■■■■ゲーム セレクト■■■■\n\n");
             printf("　　□ アルゴリズム パズルゲーム □\n　　□ アルゴリズム ソートゲーム □\n　　□ 　　　　　　　　　 　Exit □");
+            //矢印キー表示、選択
             GameSlcNum = Select(MAXGAMENUMBER + 1, GameSlcNum);
             if (GameSlcNum == 0) Scene = 1;                 //アルゴリズムゲーム
             if (GameSlcNum == 1) Scene = 2;                 //ソートゲーム
@@ -80,9 +90,9 @@ int main() {
             printf("\n　　■ アルゴリズム パズルゲーム ■\n\n");
             for (int i = 0; i < MAXALGORITHMNUMBER; i++) printf("　　□ ステージ：%d\n", i);
             printf("　　□ 戻る");
-            //矢印キー表示
+            //矢印キー表示、選択
             AlgoSlcNum = Select(MAXALGORITHMNUMBER + 1, AlgoSlcNum);
-            //backボタンを選択、ゲームselect画面に戻る
+            //戻るボタンを選択、ゲームselect画面に戻る
             if (AlgoSlcNum == MAXALGORITHMNUMBER) Scene = 0;
             //ステージを選択、アルゴリズムゲーム起動（algorithm.c）
             else AlgorithmGame(AlgoSlcNum);
@@ -94,12 +104,12 @@ int main() {
             printf("\n　　■ アルゴリズム ソートゲーム ■\n\n");
             for (int i = 0; i < MAXSORTNUMBER; i++) printf("　　□ ステージ：%d\n", i);
             printf("　　□ 戻る");
+            //矢印キー表示、選択
             SortSlcNum = Select(MAXSORTNUMBER + 1, SortSlcNum);
-            //ゲームselect画面に戻る
+            //戻るボタンを選択、ゲームselect画面に戻る
             if (SortSlcNum == MAXSORTNUMBER) Scene = 0;
             //ステージを選択、ソートゲーム起動（sort.c）
             else SortGame(SortSlcNum);
-
             system("cls");
             break;
 

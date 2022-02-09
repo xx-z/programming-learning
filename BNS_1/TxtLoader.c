@@ -70,6 +70,7 @@ void TxtLoad(int Line) {
         }
         if ('\n' == c) LineCount++;         //s”‰ñ”ŒvZ
     }
+    //F‚ğ‰Šú‰»
     SetConsoleTextAttribute(hStdoutHandle, T_WHITE);
     fclose(fp);
 }
